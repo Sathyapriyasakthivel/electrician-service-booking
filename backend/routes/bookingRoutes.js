@@ -4,9 +4,9 @@ const db = require("../db");
 
 // POST: Save booking
 router.post("/bookings", (req, res) => {
-  const { service, subService, name, email, phone, description } = req.body;
+  const { service, sub_service, name, email, phone, description } = req.body;
 
-  if (!service || !subService || !name || !phone || !description) {
+  if (!service || !sub_service || !name || !phone || !description) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
@@ -17,7 +17,7 @@ router.post("/bookings", (req, res) => {
 
   db.query(
     sql,
-    [service, subService, name, email, phone, description],
+    [service, sub_service, name, email, phone, description],
     (err) => {
       if (err) {
         console.error(err);
@@ -27,6 +27,7 @@ router.post("/bookings", (req, res) => {
     }
   );
 });
+
 
 // GET: Active bookings only
 router.get("/bookings", (req, res) => {
