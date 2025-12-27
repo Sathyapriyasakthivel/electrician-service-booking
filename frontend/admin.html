@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script>
+  const password = prompt("Enter admin password:");
+  if (password !== "admin123") {
+    alert("Access denied");
+    window.location.href = "index.html";
+  }
+</script>
+
+<h2 style="text-align:center;">📋 Service Bookings</h2>
+
+<div class="form">
+  <table id="bookingTable" width="100%" cellpadding="10">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Service</th>
+        <th>Description</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be inserted here -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  async function loadBookings() {
+    try {
+      const res = await fetch("http://localhost:5000/api/bookings");
+      const bookings = await res.json();
+
+      const tbody = document.querySelector("#bookingTable tbody");
+      tbody.innerHTML = "";
+
+      bookings.forEach(b => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${b.name}</td>
+          <td>
+  ${b.phone}<br>
+  <a href="tel:${b.phone}">📞 Call</a> |
+  <a href="https://wa.me/91${b.phone}" target="_blank">💬 WhatsApp</a>
+</td>
+
+          <td>${b.service} - ${b.sub_service}</td>
+          <td>${b.description}</td>
+          <td>${new Date(b.created_at).toLocaleString()}</td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+    } catch (err) {
+      alert("Failed to load bookings");
+    }
+  }
+
+  loadBookings();
+</script>
+
+</body>
+</html>
