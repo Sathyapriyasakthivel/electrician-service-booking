@@ -28,10 +28,10 @@ router.post("/bookings", (req, res) => {
   );
 });
 
-// GET: Fetch bookings (Admin)
+// GET: Active bookings only
 router.get("/bookings", (req, res) => {
   db.query(
-    "SELECT * FROM bookings ORDER BY created_at DESC",
+    "SELECT * FROM bookings WHERE status = 'ACTIVE' ORDER BY created_at DESC",
     (err, results) => {
       if (err) {
         return res.status(500).json({ message: "Database error" });
@@ -40,5 +40,38 @@ router.get("/bookings", (req, res) => {
     }
   );
 });
+
+// GET: Completed bookings (History)
+router.get("/bookings/history", (req, res) => {
+  db.query(
+    "SELECT * FROM bookings WHERE status = 'COMPLETED' ORDER BY completed_at DESC",
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ message: "Database error" });
+      }
+      res.json(results);
+    }
+  );
+});
+
+
+// PUT: Mark booking as completed
+router.put("/bookings/:id/complete", (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    UPDATE bookings
+    SET status = 'COMPLETED', completed_at = NOW()
+    WHERE id = ?
+  `;
+
+  db.query(sql, [id], (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error" });
+    }
+    res.json({ message: "Booking marked as completed" });
+  });
+});
+
 
 module.exports = router;

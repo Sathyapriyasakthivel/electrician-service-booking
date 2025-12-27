@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- SIMPLE ADMIN PASSWORD -->
 <script>
   const password = prompt("Enter admin password:");
   if (password !== "admin123") {
@@ -14,7 +16,8 @@
   }
 </script>
 
-<h2 style="text-align:center;">📋 Service Bookings</h2>
+<!-- ACTIVE BOOKINGS -->
+<h2 style="text-align:center;">📋 Active Service Bookings</h2>
 
 <div class="form">
   <table id="bookingTable" width="100%" cellpadding="10">
@@ -25,48 +28,94 @@
         <th>Service</th>
         <th>Description</th>
         <th>Date</th>
+        <th>Action</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Data will be inserted here -->
-    </tbody>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- COMPLETED HISTORY -->
+<h2 style="text-align:center; margin-top:50px;">📜 Completed Work History</h2>
+
+<div class="form">
+  <table id="historyTable" width="100%" cellpadding="10">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Service</th>
+        <th>Description</th>
+        <th>Completed On</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
   </table>
 </div>
 
 <script>
+  // LOAD ACTIVE BOOKINGS
   async function loadBookings() {
-    try {
-      const res = await fetch("http://localhost:5000/api/bookings");
-      const bookings = await res.json();
+    const res = await fetch("http://localhost:5000/api/bookings");
+    const bookings = await res.json();
 
-      const tbody = document.querySelector("#bookingTable tbody");
-      tbody.innerHTML = "";
+    const tbody = document.querySelector("#bookingTable tbody");
+    tbody.innerHTML = "";
 
-      bookings.forEach(b => {
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-          <td>${b.name}</td>
-          <td>
-  ${b.phone}<br>
-  <a href="tel:${b.phone}">📞 Call</a> |
-  <a href="https://wa.me/91${b.phone}" target="_blank">💬 WhatsApp</a>
-</td>
-
-          <td>${b.service} - ${b.sub_service}</td>
-          <td>${b.description}</td>
-          <td>${new Date(b.created_at).toLocaleString()}</td>
-        `;
-
-        tbody.appendChild(row);
-      });
-
-    } catch (err) {
-      alert("Failed to load bookings");
-    }
+    bookings.forEach(b => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${b.name}</td>
+        <td>
+          ${b.phone}<br>
+          <a href="tel:${b.phone}">📞 Call</a> |
+          <a href="https://wa.me/91${b.phone}" target="_blank">💬 WhatsApp</a>
+        </td>
+        <td>${b.service} - ${b.sub_service}</td>
+        <td>${b.description}</td>
+        <td>${new Date(b.created_at).toLocaleString()}</td>
+        <td>
+          <button onclick="markCompleted(${b.id})">✅ Completed</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
   }
 
+  // MARK AS COMPLETED
+  async function markCompleted(id) {
+    if (!confirm("Mark this work as completed?")) return;
+
+    await fetch(`http://localhost:5000/api/bookings/${id}/complete`, {
+      method: "PUT"
+    });
+
+    loadBookings();
+    loadHistory();
+  }
+
+  // LOAD COMPLETED HISTORY
+  async function loadHistory() {
+    const res = await fetch("http://localhost:5000/api/bookings/history");
+    const history = await res.json();
+
+    const tbody = document.querySelector("#historyTable tbody");
+    tbody.innerHTML = "";
+
+    history.forEach(b => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${b.name}</td>
+        <td>${b.service} - ${b.sub_service}</td>
+        <td>${b.description}</td>
+        <td>${new Date(b.completed_at).toLocaleString()}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  // INITIAL LOAD
   loadBookings();
+  loadHistory();
 </script>
 
 </body>
