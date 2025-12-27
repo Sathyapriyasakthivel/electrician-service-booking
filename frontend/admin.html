@@ -55,7 +55,7 @@
 <script>
   // LOAD ACTIVE BOOKINGS
   async function loadBookings() {
-    const res = await fetch("http://localhost:5000/api/bookings");
+    const res = await fetch("https://electrician-backend-zdtl.onrender.com/api/bookings");
     const bookings = await res.json();
 
     const tbody = document.querySelector("#bookingTable tbody");
@@ -85,7 +85,7 @@
   async function markCompleted(id) {
     if (!confirm("Mark this work as completed?")) return;
 
-    await fetch(`http://localhost:5000/api/bookings/${id}/complete`, {
+    await fetch(`https://electrician-backend-zdtl.onrender.com/api/bookings/${id}/complete`, {
       method: "PUT"
     });
 
@@ -95,7 +95,7 @@
 
   // LOAD COMPLETED HISTORY
   async function loadHistory() {
-    const res = await fetch("http://localhost:5000/api/bookings/history");
+    const res = await fetch("https://electrician-backend-zdtl.onrender.com/api/bookings/history");
     const history = await res.json();
 
     const tbody = document.querySelector("#historyTable tbody");
